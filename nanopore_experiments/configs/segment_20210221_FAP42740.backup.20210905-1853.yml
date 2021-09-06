@@ -1,0 +1,38 @@
+fast5:
+  dir: /disk1/pore_data/MinION_raw_data_20210221
+  prefix: DESKTOP_CHF4GRO_20210221_FAP42740_MN21390_sequencing_run_02_21_21_
+  names:
+    run01: run_01_55891.fast5
+  run_splits:
+    run01:
+    - name: a
+      start: 0
+      end: 300
+    - name: b
+      start: 360
+      end: 960
+    - name: c
+      start: 1020
+      end: 1320
+    - name: d
+      start: 1380
+      end: 1980
+    - name: e
+      start: 2040
+      end: 2340
+    - name: f
+      start: 2400
+      end: 3000
+    - name: g
+      start: 3060
+      end: 3360
+    - name: h
+      start: 3420
+      end: 4020
+segmentation_params:
+  out_prefix: /disk1/pore_data/segmented/peptides/20210221
+  min_duration_obs: 10
+  signal_threshold: 0.700000
+  signal_priors:
+    prior_open_pore_mean: 220.000000
+    prior_open_pore_std: 35.000000

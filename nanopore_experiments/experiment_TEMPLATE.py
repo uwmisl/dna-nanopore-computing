@@ -81,7 +81,7 @@ try:
 except:
     pass
 
-for run, fast5_fname in sorted(fast5_fnames.iteritems()):
+for run, fast5_fname in sorted(fast5_fnames.items()):
     f5 = h5py.File(os.path.join(fast5_dir, fast5_prefix + fast5_fname))
     channels_present = [int(re.findall(r"Channel_(\d+)", str(x))[0])
                         for x in f5.get("/Raw").values()]
@@ -138,7 +138,7 @@ except:
     pass
 
 # Redetermine good channels if needed
-for i, (run, name) in enumerate(fast5_fnames.iteritems()):
+for i, (run, name) in enumerate(fast5_fnames.items()):
     f5_fname = fast5_dir + "/" + fast5_prefix + name
     print(f5_fname)
     print("Finding good channels in %s." % (run))
@@ -176,7 +176,7 @@ good_channels = y.get_variable("fast5:good_channels")
 
 
 fast5_fnames_full = fast5_fnames.copy()
-for run, fname in fast5_fnames_full.iteritems():
+for run, fname in fast5_fnames_full.items():
     fast5_fnames_full[run] = os.path.join(fast5_dir, fast5_prefix + fname)
 save_location = y.get_variable("segmentation_params:out_prefix")
 min_duration_obs = y.get_variable("segmentation_params:min_duration_obs")
@@ -249,8 +249,6 @@ for fname in filtered_fnames:
     time_quantified_dict[fname] = time
     print("Estimated Conc in uM:")
     print([pepquant.ssw_4PL_time_fit(x) for x in time])
-    print()
-    print()
 
 
 # In[ ]:

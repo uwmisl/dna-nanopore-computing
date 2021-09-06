@@ -57,7 +57,7 @@ def get_local_fractional_blockage(f5, open_pore_guess=220, open_pore_bound=15,
     open_pore = find_open_pore_current(signal, open_pore_guess,
                                        bound=open_pore_bound)
     if open_pore is None:
-        print "open pore is None"
+        print("open pore is None")
 
         return None
 
@@ -235,7 +235,7 @@ def split_multi_fast5(yml_file, temp_f5_fname=None):
 
     new_names = {}
 
-    for i, (run, name) in enumerate(names.iteritems()):
+    for i, (run, name) in enumerate(names.items()):
         f5_fname = f5_dir + "/" + prefix + name
         f5 = h5py.File(f5_fname, "r")
         sample_freq = get_sampling_rate(f5)
@@ -352,7 +352,7 @@ def split_multi_fast5(yml_file, temp_f5_fname=None):
                 split_f5.flush()
 
         logger.info("Closing and compressing files.")
-        for run_split, split_f5 in open_split_f5.iteritems():
+        for run_split, split_f5 in open_split_f5.items():
             logger.debug(run_split)
             split_f5_temp_name = split_f5.filename
             split_f5.close()
@@ -385,15 +385,15 @@ def judge_channels(fast5_fname, plot_grid=False, cmap=None,
                           (0.98, 0.98, 1)])
     f5 = h5py.File(name=fast5_fname)
     channels = f5.get("Raw").keys()
-    channels.sort(key=natkey)
+    channels = sorted(channels, key=natkey)
     nrows, ncols = 16, 32  # = 512 channels
     channel_grid = np.zeros((nrows, ncols))
     if plot_grid:
         fig, ax = plt.subplots(figsize=(16, 32))
     for channel in channels:
         i = int(re.findall(r'Channel_(\d+)', channel)[0])
-        row_i = (i - 1) / ncols
-        col_j = (i - 1) % ncols
+        row_i = int((i - 1) / ncols)
+        col_j = int((i - 1) % ncols)
 
         raw = get_scaled_raw_for_channel(f5, channel)
 

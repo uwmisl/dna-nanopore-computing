@@ -18,7 +18,7 @@ alpha = list(string.ascii_lowercase)
 # In[2]:
 
 
-date = "20190504"
+date = "20210221"
 f5_base_dir = "/disk1/pore_data"
 f5_dir = "MinION_raw_data_%s" % date
 
@@ -103,7 +103,7 @@ def get_run_info(run_spreadsheet, date_yyyymmdd, runs=None):
         runs_by_date[runs_on_date.loc[i, "File name"]] = run_spreadsheet.loc[start_line:end_line, :]
 
     formatted_coords = {}
-    for run, df in runs_by_date.iteritems():
+    for run, df in runs_by_date.items():
         formatted_coords[run] = []
         for i, coords in enumerate(df.loc[:, ["start (sec)", "end (sec)"]].iterrows()):
             letter = alpha[i]
@@ -196,7 +196,7 @@ for flowcell in flowcells:
         print("  dir: %s/" % os.path.join(f5_base_dir, f5_dir))
         print("  prefix: %s" % prefixes_by_flowcell[flowcell])
         print("  names:")
-        for run, df in runs_by_date.iteritems(): 
+        for run, df in runs_by_date.items(): 
             if df.iloc[0]["Flow Cell"] != flowcell:
                 continue
             run_name = re.findall(r"run_(\d+)", run)[0]
@@ -209,7 +209,7 @@ for flowcell in flowcells:
                     pass
         print("  run_splits:")
         formatted_coords = {}
-        for run, df in runs_by_date.iteritems(): 
+        for run, df in runs_by_date.items(): 
             if df.iloc[0]["Flow Cell"] != flowcell:
                 continue
             formatted_coords[run] = [] 
@@ -252,7 +252,7 @@ for flowcell in flowcells:
             f.write("  dir: %s\n" % os.path.join(f5_base_dir, f5_dir))
             f.write("  prefix: %s\n" % prefixes_by_flowcell[flowcell])
             f.write("  names:\n")
-            for run, df in runs_by_date.iteritems():
+            for run, df in runs_by_date.items():
                 if df.iloc[0]["Flow Cell"] != flowcell:
                     continue
                 run_name = re.findall(r"run_(\d+)", run)[0]
@@ -265,7 +265,7 @@ for flowcell in flowcells:
                         pass
             f.write("  run_splits:\n")
             formatted_coords = {}
-            for run, df in runs_by_date.iteritems():
+            for run, df in runs_by_date.items():
                 if df.iloc[0]["Flow Cell"] != flowcell:
                     continue
                 formatted_coords[run] = [] 
@@ -314,10 +314,4 @@ for flowcell in flowcells:
             lines = lines.replace("INSERT_FLOWCELL", flowcell)
         with open(notebook_fname, "w+") as nb:
             nb.write(lines)
-
-
-# In[ ]:
-
-
-
 

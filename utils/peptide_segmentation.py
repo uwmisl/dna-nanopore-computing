@@ -77,7 +77,7 @@ def parallel_find_peptides(f5_fnames, good_channel_dict, open_pore_prior,
     logger.setLevel(logging.INFO)
     logger.addHandler(logging.StreamHandler())
 
-    for run, f5_fname in f5_fnames.iteritems():
+    for run, f5_fname in f5_fnames.items():
         logger.info("Reading in signals for run: %s" % run)
         f5 = h5py.File(f5_fname)
         voltage = f5.get("/Device/MetaData").value["bias_voltage"] * 5.
@@ -134,7 +134,7 @@ def extract_raw_data(f5_fnames, df_location=".",
     logger.setLevel(logging.INFO)
     logger.addHandler(logging.StreamHandler())
 
-    for run, f5_fname in f5_fnames.iteritems():
+    for run, f5_fname in f5_fnames.items():
         logger.info("Saving data from %s" % run)
         df = np.load(os.path.join(df_location, df_prefix + "_%s.pkl" % run),
                      allow_pickle=True)

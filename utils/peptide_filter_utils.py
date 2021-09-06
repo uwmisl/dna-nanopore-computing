@@ -39,12 +39,13 @@ def get_num_classes(classifier, classifier_name):
 # A prediction class of -1 indicates prediction probability is below conf_thesh
 def init_classifier(classifier_name, classifier_path):
     if classifier_name is "setA_cnn":
-        cnn = setA_10_barcodes_trained_cnn_20191015.load_cnn(classifier_path)
+        cnn = setA_10_barcodes_trained_cnn_20191015.load_CNN(classifier_path)
     elif classifier_name is "final_10_cnn":
-        cnn = final_10_orthogonal_barcodes_trained_cnn_20210330.load_cnn(classifier_path)
+        cnn = final_10_orthogonal_barcodes_trained_cnn_20210330.load_CNN(classifier_path)
     else:
         raise Exception("Invalid classifier name")
     cnn.eval()
+    cnn.cuda()
     return cnn
 
 
