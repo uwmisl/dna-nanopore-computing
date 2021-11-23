@@ -3,14 +3,10 @@ Analysis pipeline for extracting, filtering, classifying, and quantifying DNA ci
 
 Adapted from https://github.com/uwmisl/NanoporeTERs.
 
-## Operating System
-This software is compatible with Linux operating systems and has been tested on CentOS 7.9.
+## System Requirements and Installation
+This software is compatible with Linux operating systems. The classification algorithms in this software also utilize a GPU (CUDA 10.0).
 
-## Installation and Dependencies
-Clone repository and install the following dependencies.
-
-Environment:
-* Jupyter notebook running Python 2.7.16
+This repository was developed on a Jupyter notebook server running Python 2.7. The following dependencies should be installed.
 
 Packages:
 * dask (1.2.2)
