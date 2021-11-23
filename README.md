@@ -1,11 +1,12 @@
-# DNA Nanopore Computing
-Analysis pipeline for extracting, filtering, classifying, and quantifying DNA circuit output on a nanopore sensing platform (Oxford Nanopore Technologies).
+# DNA Circuit Detection from Raw Nanopore Sensing Data
+Analysis pipeline for extracting, filtering, classifying, and quantifying DNA circuit output on a nanopore sensing platform. Bulk raw data was collected from Oxford Nanopore Technologies' MinION using R9.4.1 flow cells and a custom MinKNOW run script.
 
 Adapted from https://github.com/uwmisl/NanoporeTERs.
 
-## Installation and Dependencies
+## Operating System
 This software is compatible with Linux operating systems and has been tested on CentOS 7.9.
 
+## Installation and Dependencies
 Clone repository and install the following dependencies.
 
 Environment:
