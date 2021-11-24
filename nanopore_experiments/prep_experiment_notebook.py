@@ -18,9 +18,10 @@ alpha = list(string.ascii_lowercase)
 # In[2]:
 
 
-date = "20210221"
+date = "20210118"
 f5_base_dir = "/disk1/pore_data"
 f5_dir = "MinION_raw_data_%s" % date
+output_dir = "/disk1/pore_data/segmented/peptides"
 
 
 # In[3]:
@@ -53,18 +54,20 @@ for fname in os.listdir(f5_base_dir):
 
 # # Functions for reading Google Drive spreadsheet
 
+# MinION experiments are logged on a Google spreadsheet which is read in by the following function. The example spreadsheet can be found here: https://docs.google.com/spreadsheets/d/1hTbtQS8kGk-G4-IIQnp72_jNUSjsEZTQ9N_nbM7DeZA/edit?usp=sharing . To use a different spreadsheet, the `gdrive_key` and `sheet_id` must be updated.
+
 # In[6]:
 
 
 def import_gdrive_sheet(gdrive_key, sheet_id):
-    run_spreadsheet = pd.read_csv("https://docs.google.com/spreadsheet/ccc?key=" +                                   peptide_gdrive_key + "&output=csv&gid=" + sheet_id)
+    run_spreadsheet = pd.read_csv("https://docs.google.com/spreadsheet/ccc?key=" +                                   gdrive_key + "&output=csv&gid=" + sheet_id)
     run_spreadsheet.Date = pd.to_datetime(run_spreadsheet.Date, format="%m_%d_%y")
     return run_spreadsheet
 
-peptide_gdrive_key = "1CRnphJXZ4QZSg21-0SlcyUwO0H1nMGTfTjH_G7q9fJM"
-sheet_id = "1709785742"
+gdrive_key = "1hTbtQS8kGk-G4-IIQnp72_jNUSjsEZTQ9N_nbM7DeZA"
+sheet_id = "0"
 
-run_spreadsheet = import_gdrive_sheet(peptide_gdrive_key, sheet_id)
+run_spreadsheet = import_gdrive_sheet(gdrive_key, sheet_id)
 
 
 # In[7]:
@@ -232,7 +235,7 @@ for flowcell in flowcells:
                 print("      end: %d" % end)
                 formatted_coords[run].append({"name": letter, "start": start, "end": end})
         print("segmentation_params:")
-        print("  out_prefix: /disk1/pore_data/segmented/peptides/%s" % date)
+        print("  out_prefix: %s" % os.path.join(output_dir, date))
         print("  min_duration_obs:", min_duration_obs)
         print("  signal_threshold:", signal_threshold)
         print("  signal_priors:")
@@ -288,7 +291,7 @@ for flowcell in flowcells:
                     f.write("      end: %d\n" % end)
                     formatted_coords[run].append({"name": letter, "start": start, "end": end})
             f.write("segmentation_params:\n")
-            f.write("  out_prefix: /disk1/pore_data/segmented/peptides/%s\n" % date)
+            f.write("  out_prefix: %s\n" % os.path.join(output_dir, date))
             f.write("  min_duration_obs: %d\n" % min_duration_obs)
             f.write("  signal_threshold: %f\n" % signal_threshold)
             f.write("  signal_priors:\n")

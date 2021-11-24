@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
+# In[1]:
 
 
 get_ipython().run_line_magic('matplotlib', 'inline')
@@ -9,7 +9,7 @@ get_ipython().run_line_magic('load_ext', 'autoreload')
 get_ipython().run_line_magic('autoreload', '2')
 
 
-# In[ ]:
+# In[2]:
 
 
 import h5py
@@ -35,11 +35,11 @@ import peptide_quantifier_utils as pepquant
 
 # # Load run configuration
 
-# In[ ]:
+# In[3]:
 
 
-date = "INSERT_DATE"
-flowcell = "INSERT_FLOWCELL"
+date = "20210118"
+flowcell = "FAP26604"
 config_file = os.path.join(os.path.dirname(os.getcwd()), "nanopore_experiments", "configs", "segment_%s_%s.yml" % (date, flowcell))
 
 
@@ -47,13 +47,13 @@ config_file = os.path.join(os.path.dirname(os.getcwd()), "nanopore_experiments",
 
 # Splits bulk fast5 based on run partitions. Make sure to change temp file name if running multiple experiment notebooks in parallel so they will not overwrite each other!
 
-# In[ ]:
+# In[4]:
 
 
 raw_signal_utils.split_multi_fast5(config_file, temp_f5_fname="temp2.f5")
 
 
-# In[ ]:
+# In[5]:
 
 
 y = YAMLAssistant(config_file)
@@ -63,7 +63,7 @@ y = YAMLAssistant(config_file)
 
 # Plots example traces from each run partition.
 
-# In[ ]:
+# In[6]:
 
 
 plt.ioff()
@@ -73,7 +73,7 @@ fast5_prefix = y.get_variable("fast5:prefix")
 fast5_fnames = y.get_variable("fast5:names")
 
 
-# In[ ]:
+# In[7]:
 
 
 try:
@@ -122,7 +122,7 @@ plt.ion()
 
 # Writes good channels to config file.
 
-# In[ ]:
+# In[8]:
 
 
 signal_priors = y.get_variable("segmentation_params:signal_priors")
@@ -156,7 +156,7 @@ for i, (run, name) in enumerate(fast5_fnames.items()):
     display(fig)
 
 
-# In[ ]:
+# In[9]:
 
 
 y = YAMLAssistant(config_file)
@@ -164,7 +164,7 @@ y = YAMLAssistant(config_file)
 
 # # Find peptides
 
-# In[ ]:
+# In[10]:
 
 
 open_pore_prior = y.get_variable("segmentation_params:signal_priors:prior_open_pore_mean")
@@ -172,7 +172,7 @@ open_pore_prior_std = y.get_variable("segmentation_params:signal_priors:prior_op
 good_channels = y.get_variable("fast5:good_channels")
 
 
-# In[ ]:
+# In[11]:
 
 
 fast5_fnames_full = fast5_fnames.copy()
@@ -186,7 +186,7 @@ voltage_threshold = -180.
 
 # Saves capture metadata in `.pkl` files.
 
-# In[ ]:
+# In[12]:
 
 
 pepseg.parallel_find_peptides(
@@ -201,7 +201,7 @@ pepseg.parallel_find_peptides(
 
 # Saves raw capture data in `.npy` files.
 
-# In[ ]:
+# In[13]:
 
 
 pepseg.extract_raw_data(fast5_fnames_full, df_location=save_location,
@@ -218,7 +218,7 @@ pepseg.extract_raw_data(fast5_fnames_full, df_location=save_location,
 # 
 # Default confidence threshold is 0. Saves filtered and classified capture metadata in `.csv` files.
 
-# In[ ]:
+# In[14]:
 
 
 segmented_base_fname = os.path.join(save_location, "%s_segmented_peptides_%s%s%s.%s")
@@ -238,7 +238,7 @@ filtered_fnames = pepfilter.filter_and_classify_peptides(fast5_fnames.keys(), da
 
 # ## Time Between Captures
 
-# In[ ]:
+# In[15]:
 
 
 time_quantified_dict = {}
@@ -251,7 +251,7 @@ for fname in filtered_fnames:
     print([pepquant.ssw_4PL_time_fit(x) for x in time])
 
 
-# In[ ]:
+# In[16]:
 
 
 conc_out_dir = "../concentration"
@@ -261,7 +261,7 @@ with open(os.path.join(conc_out_dir, "experiment_%s_%s_time.json" % (date, flowc
 
 # ## Capture Frequency
 
-# In[ ]:
+# In[17]:
 
 
 freq_quantified_dict = {}
@@ -272,7 +272,7 @@ for fname in filtered_fnames:
     freq_quantified_dict[fname] = freq
 
 
-# In[ ]:
+# In[18]:
 
 
 conc_out_dir = "../concentration"
