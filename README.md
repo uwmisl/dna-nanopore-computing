@@ -39,6 +39,6 @@ The output from this pipeline should include:
 * Quantification of each analyte, saved to `concentration` 
 
 ## Demo
-An example raw fast5 file is provided, corresponding to the experiment logged on the [example spreadsheet](https://docs.google.com/spreadsheets/d/1hTbtQS8kGk-G4-IIQnp72_jNUSjsEZTQ9N_nbM7DeZA/edit?usp=sharing). 
+An example raw fast5 file is provided [here](https://drive.google.com/file/d/1qJ2_Q5dxfY4vNrqqyOrf04y4FA-q4zvT/view?usp=sharing) (file size ~6 GB), corresponding to the experiment logged on the [example spreadsheet](https://docs.google.com/spreadsheets/d/1hTbtQS8kGk-G4-IIQnp72_jNUSjsEZTQ9N_nbM7DeZA/edit?usp=sharing). 
 
-The fully-executed experiment notebook for this demo is provided at `nanopore_experiments/experiment_20210118_FAP26604.ipynb`. The expected runtime for this demo (from raw fast5 file to quantification results) is ~10 minutes. 
+The fully-executed experiment notebook for this demo is provided at `nanopore_experiments/experiment_20210118_FAP26604.ipynb`. The expected runtime for this demo (from raw fast5 file to quantification results) is ~10 minutes. Expected results for both time until capture-based and frequency-based quantification are provided at `concentration`.
