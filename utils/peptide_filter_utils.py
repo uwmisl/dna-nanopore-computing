@@ -5,6 +5,7 @@ import joblib
 import os
 import final_10_orthogonal_barcodes_trained_cnn_20210330
 import setA_10_barcodes_trained_cnn_20191015
+import torchvision.models as models
 import pandas as pd
 import logging
 import torch
@@ -28,10 +29,16 @@ def get_num_classes(classifier, classifier_name):
         return
 
 
-# Possible classifier names: setA_cnn, final_10_cnn
+# Possible classifier names: setA_cnn, full_36_cnn, final_10_cnn
 
 # Prediction classes for setA_cnn correspond to the following barcode IDs:
 # 0:A0, 1:A1, 2:A2, 3:A3, 4:A4, 5:A5, 6:A6, 7:A7, 8:A8, 9:A9
+
+# Prediction classes for full_36_cnn correspond to the following barcode IDs:
+# 0:A0, 1:A1, 2:A2, 3:A3, 4:A4, 5:A5, 6:A6, 7:A7, 8:A8, 9:A9, 
+# 10:B0, 11:B1, 12:B2, 13:B3, 14:B4, 15:B5, 16:B6, 17:B7, 18:B8, 19:B9, 
+# 20:B10, 21:B11, 22:C0, 23:C1, 24:C2, 25:C3, 26:C4, 27:C5, 28:C6, 29:C7, 
+# 30:C8, 31:C9, 32:C10, 33:C11, 34:C12, 35:C13
 
 # Prediction classes for final_10_cnn correspond to the following barcode IDs:
 # 0:B2, 1:B10, 2:B3, 3:C5, 4:B6, 5:B7, 6:B8, 7:C13, 8:C8, 9:C12
@@ -40,8 +47,12 @@ def get_num_classes(classifier, classifier_name):
 def init_classifier(classifier_name, classifier_path):
     if classifier_name is "setA_cnn":
         cnn = setA_10_barcodes_trained_cnn_20191015.load_CNN(classifier_path)
+    elif classifier_name is "full_36_cnn":
+        cnn = models.resnet18()
+        cnn.load_state_dict(torch.load(classifier_path))
     elif classifier_name is "final_10_cnn":
-        cnn = final_10_orthogonal_barcodes_trained_cnn_20210330.load_CNN(classifier_path)
+        cnn = models.resnet18()
+        cnn.load_state_dict(torch.load(classifier_path))
     else:
         raise Exception("Invalid classifier name")
     cnn.eval()
@@ -77,10 +88,18 @@ def classifier_predict(classifier, raw, conf_thresh, classifier_name):
     # go from 2D to 3D array (each obs in a capture becomes its own array)
     X_test = X_test.reshape(len(X_test), X_test.shape[1], 1)
     X_test = X_test[:, :19881]  # take only first 19881 obs of each capture
-    # break all obs in a captures into 141 groups of 141 (19881 total); each
-    # capture becomes its own array
-    X_test = X_test.reshape(len(X_test), 1, 141, 141)
-    X_test = torch.from_numpy(X_test)
+    if isinstance(classifier, models.resnet.ResNet):
+        X_test = X_test.reshape(len(X_test),reshape,reshape) 
+        X_test = np.repeat(X_test[..., np.newaxis], 3, -1)
+        X_test = torch.from_numpy(X_test)
+        X_test = X_test.permute(0, 3, 1, 2)
+        X_test = torch.nn.functional.interpolate(X_test,size=(224,224), mode='bilinear')
+        X_test = X_test.float()
+    elif isinstance(classifier, nn.Module):
+        X_test = X_test.reshape(len(X_test), 1, 141, 141)
+        X_test = torch.from_numpy(X_test)
+    else:
+        raise Exception("Classifier model not supported")
     X_test = X_test.cuda()
     outputs = classifier(X_test)
     out = nn.functional.softmax(outputs)

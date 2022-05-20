@@ -7,16 +7,18 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
-import os
 from sklearn.model_selection import train_test_split
 import torch
 import torchvision
 import torchvision.transforms as transforms
+import torchvision.models as models
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import random
 import math as m
+from sklearn.metrics import confusion_matrix
+import pandas as pd
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -39,11 +41,15 @@ print('Data loaded successfully')
 
 Y_file = Y_file.flatten()
 
-window_length = 19881 
+window_length = 19881
+
 X_file = X_file[:,:window_length]
 
+print(X_file.shape)
+print(Y_file.shape)
 
-# In[ ]:
+
+# In[3]:
 
 
 '''
@@ -56,8 +62,7 @@ labels_train = Y_file
 X_tr, X_vld, lab_tr, lab_vld = train_test_split(
         X_train, labels_train, stratify = labels_train, train_size = 0.8)
 
-X_vld, X_test, lab_vld, lab_test = train_test_split(
-    X_vld, lab_vld, stratify = lab_vld)
+X_vld, X_test, lab_vld, lab_test = train_test_split(X_vld, lab_vld, stratify = lab_vld)
 
 y_tr = lab_tr.astype(int)
 y_vld = lab_vld.astype(int)
@@ -65,32 +70,30 @@ y_test = lab_test.astype(int)
 
 print('Data split done')
 
-
-# In[ ]:
-
-
 '''
 If gpu is available we will use it
 '''
 use_cuda = True
-
-
-# In[ ]:
-
 
 '''
 Reshaping data
 '''
 reshape = 141
 
-X_tr = X_tr.reshape(len(X_tr),1,reshape,reshape)
-X_vld = X_vld.reshape(len(X_vld),1,reshape,reshape)
-X_test = X_test.reshape(len(X_test),1,reshape,reshape)
+X_tr = X_tr.reshape(len(X_tr),reshape,reshape)
+X_vld = X_vld.reshape(len(X_vld),reshape,reshape)
+X_test = X_test.reshape(len(X_test),reshape,reshape)
+
+print(X_tr.shape)  # (64, 224, 224)
+X_tr = np.repeat(X_tr[..., np.newaxis], 3, -1)
+print(X_tr.shape)  # (64, 224, 224, 3)
+
+X_vld = np.repeat(X_vld[..., np.newaxis], 3, -1)
+X_test = np.repeat(X_test[..., np.newaxis], 3, -1)
+
+print(X_tr.shape)
+
 print('Data reshaping done')
-
-
-# In[3]:
-
 
 '''
 Zipping data together and storing in trainloader objects
@@ -101,7 +104,16 @@ test_set = list(zip(X_test, y_test))
 print('Done zipping and converting')
 
 
-# In[4]:
+# In[5]:
+
+
+net = models.resnet18()
+
+if use_cuda and torch.cuda.is_available():
+	net.cuda()
+
+
+# In[6]:
 
 
 '''
@@ -120,89 +132,33 @@ testloader = torch.utils.data.DataLoader(
 		test_set, batch_size=batch_size,shuffle=True, num_workers=2)
 
 lr = 0.001
-epochs = 250
 momentum = 0.7557312793639288
-		
-O_1 = 17
-O_2 = 18
-O_3 = 32
-O_4 = 37
-
-K_1 = 3
-K_2 = 1
-K_3 = 4
-K_4 = 2
-
-KP_1 = 4
-KP_2 = 4
-KP_3 = 1
-KP_4 = 1
-
-conv_linear_out = int(m.floor((m.floor((m.floor((m.floor((m.floor((reshape - K_1 + 1)/KP_1) - 
-	K_2 + 1)/KP_2) - K_3 + 1)/KP_3) - K_4 + 1)/KP_4)**2)*O_4))
-	
-FN_1 = 148
-
-class CNN(nn.Module):
-
-    def __init__(self):
-
-        super(CNN, self).__init__()
-
-        self.conv1 = nn.Sequential(nn.Conv2d(1,O_1,K_1),nn.ReLU(), 
-                                   nn.MaxPool2d(KP_1))
-
-        self.conv2 = nn.Sequential(nn.Conv2d(O_1,O_2,K_2),nn.ReLU(),
-                                   nn.MaxPool2d(KP_2))
-
-        self.conv3 = nn.Sequential(nn.Conv2d(O_2,O_3,K_3),nn.ReLU(),
-                                   nn.MaxPool2d(KP_3))
-
-        self.conv4 = nn.Sequential(nn.Conv2d(O_3,O_4,K_4),nn.ReLU(),
-                                   nn.MaxPool2d(KP_4))
-
-        self.fc1 = nn.Linear(conv_linear_out, FN_1, nn.Dropout(0.2))
 
 
-        self.fc2 = nn.Linear(FN_1, 11)
-
-
-    def forward(self, x):
-        x = x.float()
-        x = F.leaky_relu(self.conv1(x))
-        x = F.leaky_relu(self.conv2(x))
-        x = F.leaky_relu(self.conv3(x))
-        x = F.leaky_relu(self.conv4(x))
-        x = x.view(len(x), -1)
-        x = F.logsigmoid(self.fc1(x))
-        x = self.fc2(x)
-        return x
-
-net = CNN()
-if use_cuda and torch.cuda.is_available():
-	net.cuda()
-
-
-# In[5]:
+# In[7]:
 
 
 '''
-Train
+Training
 '''
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(net.parameters(), lr=lr, momentum=momentum)
 
-for epoch in range(250):
-
+for epoch in range(75):  # loop over the dataset multiple times
 	running_loss = 0.0
 	for i,data in enumerate(trainloader, 0):
 		inputs,labels = data
 		if use_cuda and torch.cuda.is_available():
+			inputs = inputs.permute(0, 3, 1, 2)
+			inputs = torch.nn.functional.interpolate(inputs,size=(224,224), mode='bilinear')
+			inputs = inputs.float()
+            
 			inputs = inputs.cuda()
 			labels = labels.cuda()
 
 		optimizer.zero_grad()
-		outputs = net(inputs)
+		outputs =net(inputs)
+
 		outputs = outputs.to(dtype = torch.float64)
 		labels = labels.to(dtype = torch.long)
 		loss = criterion(outputs, labels)
@@ -216,6 +172,11 @@ for epoch in range(250):
 	with torch.no_grad():
 		for data in vldloader:
 			inputs, labels = data
+            
+			inputs = inputs.permute(0, 3, 1, 2)
+			inputs = torch.nn.functional.interpolate(inputs,size=(224,224), mode='bilinear')
+			inputs = inputs.float()
+            
 			inputs = inputs.cuda()
 			labels = labels.cuda()
 			outputs = net(inputs)
@@ -227,11 +188,11 @@ for epoch in range(250):
 	% (100 * correct / total))
 
 
-# In[6]:
+# In[8]:
 
 
 '''
-Test
+Testing
 '''
 correct = 0
 total = 0
@@ -240,6 +201,11 @@ all_pred = []
 with torch.no_grad():
     for data in testloader:
         inputs, labels = data
+        
+        inputs = inputs.permute(0, 3, 1, 2)
+        inputs = torch.nn.functional.interpolate(inputs,size=(224,224), mode='bilinear')
+        inputs = inputs.float()
+        
         inputs = inputs.cuda()
         labels = labels.cuda()
         outputs = net(inputs)
@@ -252,7 +218,7 @@ with torch.no_grad():
     print('Accuracy of the network on the test set: %d %%' 
     % (100 * correct / total))
 
-text_file = open("final_10_orthogonal_barcodes_cnn_results_20210330.txt", "w")
+text_file = open("final_10_orthogonal_barcodes_cnn_results_20220221.txt", "w")
 text_file.write("Accuracy of the network on the test set: %d %%" % (100 * correct / total))
 text_file.close()
 
@@ -260,11 +226,11 @@ all_true = [x.item() for x in all_true]
 all_pred = [x.item() for x in all_pred]
 
 
-# In[10]:
+# In[23]:
 
 
 '''
 Saving the trained net
 '''
-torch.save(net.state_dict(), "/disk1/pore_data/karen_data/final_10_orthogonal_barcodes_trained_cnn_20210330.pt")
+torch.save(net.state_dict(), "../utils/model/final_10_orthogonal_barcodes_trained_cnn_20220221.pt")
 

@@ -266,5 +266,5 @@ all_pred = [x.item() for x in all_pred]
 '''
 Saving the trained net
 '''
-torch.save(net.state_dict(), "setA_10_barcodes_trained_cnn_20191015.pt")
+torch.save(net.state_dict(), "../utils/model/setA_10_barcodes_trained_cnn_20191015.pt")
 
